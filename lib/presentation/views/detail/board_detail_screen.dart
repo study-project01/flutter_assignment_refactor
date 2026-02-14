@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_assignment/core/utils/responsive.dart';
-import 'package:flutter_assignment/core/widgets/responsive_container.dart';
 import 'package:flutter_assignment/presentation/providers/board_selectors.dart';
 import 'package:flutter_assignment/presentation/viewmodels/board_detail_viewmodel.dart';
 import 'package:flutter_assignment/presentation/views/detail/widgets/board_detail_header.dart';
@@ -128,10 +127,10 @@ class _BoardDetailScreenState extends ConsumerState<BoardDetailScreen> {
         : boardState.board == null
         ? const EmptyStateWidget()
         : SingleChildScrollView(
+            padding: const EdgeInsets.only(top: 10, bottom: 24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 8),
                 BoardDetailHeader(board: boardState.board!),
                 const SizedBox(height: 12),
                 BoardDetailContent(content: boardState.board!.content),
@@ -144,9 +143,24 @@ class _BoardDetailScreenState extends ConsumerState<BoardDetailScreen> {
             ),
           );
     final useCenteredLayout = Breakpoints.isTablet(context) || Breakpoints.isDesktop(context);
-    return useCenteredLayout
-        ? ResponsiveContainer(child: content)
-        : content;
+    // 테블릿/데스크톱: 가로만 중앙 정렬, 세로는 모바일처럼 상단부터 채움
+    if (useCenteredLayout) {
+      return LayoutBuilder(
+        builder: (context, constraints) {
+          return Align(
+            alignment: Alignment.topCenter,
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: Breakpoints.contentMaxWidth,
+                maxHeight: constraints.maxHeight,
+              ),
+              child: content,
+            ),
+          );
+        },
+      );
+    }
+    return content;
   }
 
   void _showDeleteDialog(BuildContext context) {
