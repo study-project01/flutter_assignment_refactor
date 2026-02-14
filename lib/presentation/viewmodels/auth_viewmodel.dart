@@ -21,16 +21,16 @@ class AuthState with _$AuthState {
 }
 
 class AuthViewModel extends StateNotifier<AuthState> {
-  final AuthRepository _repository;
+  final AuthRepository _authRepository;
 
-  AuthViewModel(this._repository) : super(const AuthState()) {
+  AuthViewModel(this._authRepository) : super(const AuthState()) {
     _checkAuth();
   }
 
   // 현재 인증 상태 확인
   Future<void> _checkAuth() async {
     try {
-      final user = await _repository.getCurrentUser();
+      final user = await _authRepository.getCurrentUser();
       state = AuthState(user: user);
     } catch (_) {
       state = const AuthState();
@@ -44,7 +44,7 @@ class AuthViewModel extends StateNotifier<AuthState> {
 
   // 로그아웃
   Future<void> logout() async {
-    await _repository.logout();
+    await _authRepository.logout();
     state = const AuthState();
   }
 
