@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter_assignment/data/datasources/remote/board_remote_datasource.dart';
 import 'package:flutter_assignment/domain/entities/board/board.dart';
@@ -18,13 +18,13 @@ class BoardRepositoryImpl implements BoardRepository {
     required String title,
     required String content,
     required String category,
-    File? image,
+    Uint8List? imageBytes,
   }) async {
     final response = await _remoteDataSource.createBoard(
       title: title,
       content: content,
       category: category,
-      image: image,
+      imageBytes: imageBytes,
     );
     return response.id;
   }
@@ -84,14 +84,14 @@ class BoardRepositoryImpl implements BoardRepository {
     required String title,
     required String content,
     required String category,
-    File? image,
+    Uint8List? imageBytes,
   }) async {
     await _remoteDataSource.updateBoard(
       id: id,
       title: title,
       content: content,
       category: category,
-      image: image,
+      imageBytes: imageBytes,
     );
   }
 

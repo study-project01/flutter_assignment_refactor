@@ -37,7 +37,7 @@ class AuthViewModel extends StateNotifier<AuthState> {
     }
   }
 
-  // 사용자 정보 설정
+  // 로그인 성공시 호출 (로그인성공을 앱 전체에 알리는용도)
   void setUser(User user) {
     state = AuthState(user: user);
   }

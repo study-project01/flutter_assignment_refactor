@@ -1,5 +1,7 @@
-import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:flutter_assignment/core/utils/responsive.dart';
+import 'package:flutter_assignment/core/widgets/responsive_container.dart';
 import 'package:flutter_assignment/presentation/viewmodels/auth_viewmodel.dart';
 import 'package:flutter_assignment/presentation/viewmodels/board_form_viewmodel.dart';
 import 'package:flutter_assignment/presentation/viewmodels/board_list_viewmodel.dart';
@@ -25,7 +27,7 @@ class _BoardFormScreenState extends ConsumerState<BoardFormScreen> {
   final _titleController = TextEditingController();
   final _contentController = TextEditingController();
   String? _selectedCategory;
-  File? _selectedImage;
+  Uint8List? _selectedImageBytes;
   String? _existingImageUrl;
   final ImagePicker _picker = ImagePicker();
 
@@ -60,10 +62,13 @@ class _BoardFormScreenState extends ConsumerState<BoardFormScreen> {
       );
 
       if (image != null) {
-        setState(() {
-          _selectedImage = File(image.path);
-          _existingImageUrl = null;
-        });
+        final bytes = await image.readAsBytes();
+        if (mounted) {
+          setState(() {
+            _selectedImageBytes = bytes;
+            _existingImageUrl = null;
+          });
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -87,7 +92,7 @@ class _BoardFormScreenState extends ConsumerState<BoardFormScreen> {
           title: _titleController.text.trim(),
           content: _contentController.text.trim(),
           category: _selectedCategory!,
-          image: _selectedImage,
+          imageBytes: _selectedImageBytes,
         );
   }
 
@@ -169,86 +174,97 @@ class _BoardFormScreenState extends ConsumerState<BoardFormScreen> {
           onPressed: () => context.pop(),
         ),
       ),
-      body: formState.isLoadingInitialData
-          ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              CategoryDropdown(
-                selectedCategory: _selectedCategory,
-                categories: categories,
-                onChanged: (value) {
-                  setState(() {
-                    _selectedCategory = value;
-                  });
-                },
-                isLoading: formState.isLoading,
-              ),
-              const SizedBox(height: 16),
-              TitleTextField(
-                controller: _titleController,
-                isLoading: formState.isLoading,
-              ),
-              const SizedBox(height: 16),
-              ContentTextField(
-                controller: _contentController,
-                isLoading: formState.isLoading,
-              ),
-              const SizedBox(height: 16),
-              ImagePickerWidget(
-                selectedImage: _selectedImage,
-                existingImageUrl: _existingImageUrl,
-                isEditMode: isEditMode,
-                isLoading: formState.isLoading,
-                onPickImage: _pickImage,
-                onRemoveSelectedImage: () {
-                  setState(() {
-                    _selectedImage = null;
-                  });
-                },
-                onRemoveExistingImage: () {
-                  setState(() {
-                    _existingImageUrl = null;
-                  });
-                },
-              ),
-              const SizedBox(height: 32),
-
-              ElevatedButton(
-                onPressed: formState.isLoading ? null : _submit,
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  backgroundColor: Theme.of(context).primaryColor,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+      body: _wrapBody(
+        context,
+        formState.isLoadingInitialData
+            ? const Center(child: CircularProgressIndicator())
+            : SingleChildScrollView(
+                padding: const EdgeInsets.all(16.0),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      CategoryDropdown(
+                        selectedCategory: _selectedCategory,
+                        categories: categories,
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedCategory = value;
+                          });
+                        },
+                        isLoading: formState.isLoading,
+                      ),
+                      const SizedBox(height: 16),
+                      TitleTextField(
+                        controller: _titleController,
+                        isLoading: formState.isLoading,
+                      ),
+                      const SizedBox(height: 16),
+                      ContentTextField(
+                        controller: _contentController,
+                        isLoading: formState.isLoading,
+                      ),
+                      const SizedBox(height: 16),
+                      ImagePickerWidget(
+                        selectedImageBytes: _selectedImageBytes,
+                        existingImageUrl: _existingImageUrl,
+                        isEditMode: isEditMode,
+                        isLoading: formState.isLoading,
+                        onPickImage: _pickImage,
+                        onRemoveSelectedImage: () {
+                          setState(() {
+                            _selectedImageBytes = null;
+                          });
+                        },
+                        onRemoveExistingImage: () {
+                          setState(() {
+                            _existingImageUrl = null;
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 32),
+                      ElevatedButton(
+                        onPressed: formState.isLoading ? null : _submit,
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          backgroundColor: Theme.of(context).primaryColor,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: formState.isLoading
+                            ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : Text(
+                                isEditMode ? '수정하기' : '등록하기',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white,
+                                ),
+                              ),
+                      ),
+                    ],
                   ),
                 ),
-                child: formState.isLoading
-                    ? const SizedBox(
-                  height: 20,
-                  width: 20,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: Colors.white,
-                  ),
-                )
-                    : Text(
-                  isEditMode ? '수정하기' : '등록하기',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
-                ),
               ),
-            ],
-          ),
-        ),
       ),
+    );
+  }
+
+  Widget _wrapBody(BuildContext context, Widget child) {
+    final useCenteredLayout = Breakpoints.isTablet(context) || Breakpoints.isDesktop(context);
+    if (!useCenteredLayout) return child;
+    return ResponsiveContainer(
+      maxWidth: Breakpoints.formMaxWidth,
+      child: child,
     );
   }
 }

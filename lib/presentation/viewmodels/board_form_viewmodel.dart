@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter_assignment/domain/repositories/board_repository.dart';
 import 'package:flutter_assignment/presentation/providers/board_provider.dart';
@@ -58,7 +58,7 @@ class BoardFormViewModel extends StateNotifier<BoardFormState> {
     required String title,
     required String content,
     required String category,
-    File? image,
+    Uint8List? imageBytes,
   }) async {
     if (!isEditMode && (userEmail == null || userEmail.isEmpty)) {
       state = state.copyWith(
@@ -83,7 +83,7 @@ class BoardFormViewModel extends StateNotifier<BoardFormState> {
         title: title,
         content: content,
         category: category,
-        image: image,
+        imageBytes: imageBytes,
       );
     }
 
@@ -92,7 +92,7 @@ class BoardFormViewModel extends StateNotifier<BoardFormState> {
       title: title,
       content: content,
       category: category,
-      image: image,
+      imageBytes: imageBytes,
     );
   }
 
@@ -102,7 +102,7 @@ class BoardFormViewModel extends StateNotifier<BoardFormState> {
     required String title,
     required String content,
     required String category,
-    File? image,
+    Uint8List? imageBytes,
   }) async {
     state = state.copyWith(
       isLoading: true,
@@ -118,7 +118,7 @@ class BoardFormViewModel extends StateNotifier<BoardFormState> {
         title: title,
         content: content,
         category: category,
-        image: image,
+        imageBytes: imageBytes,
       );
 
       await _ref.read(myPostsViewModelProvider.notifier).addMyPost(boardId);
@@ -147,7 +147,7 @@ class BoardFormViewModel extends StateNotifier<BoardFormState> {
     required String title,
     required String content,
     required String category,
-    File? image,
+    Uint8List? imageBytes,
   }) async {
     state = state.copyWith(
       isLoading: true,
@@ -164,7 +164,7 @@ class BoardFormViewModel extends StateNotifier<BoardFormState> {
         title: title,
         content: content,
         category: category,
-        image: image,
+        imageBytes: imageBytes,
       );
 
       final updatedBoard = await _boardRepository.getDetailBoard(id);

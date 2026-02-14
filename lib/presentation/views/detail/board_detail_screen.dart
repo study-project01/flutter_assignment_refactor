@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_assignment/core/utils/responsive.dart';
+import 'package:flutter_assignment/core/widgets/responsive_container.dart';
 import 'package:flutter_assignment/presentation/providers/board_selectors.dart';
 import 'package:flutter_assignment/presentation/viewmodels/board_detail_viewmodel.dart';
 import 'package:flutter_assignment/presentation/views/detail/widgets/board_detail_header.dart';
@@ -107,36 +109,44 @@ class _BoardDetailScreenState extends ConsumerState<BoardDetailScreen> {
           ],
         ],
       ),
-      body: boardState.isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : boardState.error != null && !boardState.isDeleting
-          ? ErrorStateWidget(
-              error: boardState.error!,
-              onRetry: () {
-                ref
-                    .read(boardDetailViewModelProvider(widget.boardId).notifier)
-                    .loadBoard();
-              },
-            )
-          : boardState.board == null
-          ? const EmptyStateWidget()
-          : SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 8),
-            BoardDetailHeader(board: boardState.board!),
-            const SizedBox(height: 12),
-            BoardDetailContent(content: boardState.board!.content),
-            const SizedBox(height: 24),
-            if (boardState.board!.imageUrl != null)
-              BoardDetailImage(imageUrl: boardState.board!.imageUrl!),
-            if (boardState.board!.imageUrl != null)
-              const SizedBox(height: 12),
-          ],
-        ),
-      ),
+      body: _buildBody(context, boardState),
     );
+  }
+
+  Widget _buildBody(BuildContext context, BoardDetailState boardState) {
+    final content = boardState.isLoading
+        ? const Center(child: CircularProgressIndicator())
+        : boardState.error != null && !boardState.isDeleting
+        ? ErrorStateWidget(
+            error: boardState.error!,
+            onRetry: () {
+              ref
+                  .read(boardDetailViewModelProvider(widget.boardId).notifier)
+                  .loadBoard();
+            },
+          )
+        : boardState.board == null
+        ? const EmptyStateWidget()
+        : SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 8),
+                BoardDetailHeader(board: boardState.board!),
+                const SizedBox(height: 12),
+                BoardDetailContent(content: boardState.board!.content),
+                const SizedBox(height: 24),
+                if (boardState.board!.imageUrl != null)
+                  BoardDetailImage(imageUrl: boardState.board!.imageUrl!),
+                if (boardState.board!.imageUrl != null)
+                  const SizedBox(height: 12),
+              ],
+            ),
+          );
+    final useCenteredLayout = Breakpoints.isTablet(context) || Breakpoints.isDesktop(context);
+    return useCenteredLayout
+        ? ResponsiveContainer(child: content)
+        : content;
   }
 
   void _showDeleteDialog(BuildContext context) {

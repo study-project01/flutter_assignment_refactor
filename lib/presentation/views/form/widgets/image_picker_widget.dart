@@ -1,9 +1,9 @@
-import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import '../../../../core/constants/api_constants.dart';
 
 class ImagePickerWidget extends StatelessWidget {
-  final File? selectedImage;
+  final Uint8List? selectedImageBytes;
   final String? existingImageUrl;
   final bool isEditMode;
   final bool isLoading;
@@ -13,7 +13,7 @@ class ImagePickerWidget extends StatelessWidget {
 
   const ImagePickerWidget({
     super.key,
-    required this.selectedImage,
+    required this.selectedImageBytes,
     required this.existingImageUrl,
     required this.isEditMode,
     required this.isLoading,
@@ -35,13 +35,13 @@ class ImagePickerWidget extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 8),
-        if (selectedImage != null)
+        if (selectedImageBytes != null)
           Stack(
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: Image.file(
-                  selectedImage!,
+                child: Image.memory(
+                  selectedImageBytes!,
                   width: double.infinity,
                   height: 200,
                   fit: BoxFit.cover,

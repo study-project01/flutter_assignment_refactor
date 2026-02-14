@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_assignment/core/utils/responsive.dart';
+import 'package:flutter_assignment/core/widgets/responsive_container.dart';
 import 'package:flutter_assignment/presentation/viewmodels/auth_viewmodel.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -17,6 +19,7 @@ class MainScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final useCenteredLayout = Breakpoints.isTablet(context) || Breakpoints.isDesktop(context);
     return Scaffold(
       appBar: AppBar(
         title: Text(navigationShell.currentIndex == 0 ? '커뮤니티' : '마이페이지'),
@@ -50,7 +53,9 @@ class MainScreen extends ConsumerWidget {
           ),
         ],
       ),
-      body: navigationShell,
+      body: useCenteredLayout
+          ? ResponsiveContainer(child: navigationShell)
+          : navigationShell,
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: navigationShell.currentIndex,
         onTap: (index) => _onTap(context, index),

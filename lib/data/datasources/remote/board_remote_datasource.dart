@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_assignment/core/constants/api_constants.dart';
@@ -16,7 +16,7 @@ class BoardRemoteDataSource {
     required String title,
     required String content,
     required String category,
-    File? image,
+    Uint8List? imageBytes,
   }) async {
     try {
       final requestData = {
@@ -30,10 +30,10 @@ class BoardRemoteDataSource {
           jsonEncode(requestData),
           contentType: DioMediaType('application', 'json'),
         ),
-        if (image != null)
-          'file': await MultipartFile.fromFile(
-            image.path,
-            filename: image.path.split('/').last,
+        if (imageBytes != null)
+          'file': MultipartFile.fromBytes(
+            imageBytes,
+            filename: 'image.jpg',
           ),
       });
 
@@ -77,7 +77,7 @@ class BoardRemoteDataSource {
     required String title,
     required String content,
     required String category,
-    File? image,
+    Uint8List? imageBytes,
   }) async {
     try {
       final requestData = {
@@ -91,10 +91,10 @@ class BoardRemoteDataSource {
           jsonEncode(requestData),
           contentType: DioMediaType('application', 'json'),
         ),
-        if (image != null)
-          'file': await MultipartFile.fromFile(
-            image.path,
-            filename: image.path.split('/').last,
+        if (imageBytes != null)
+          'file': MultipartFile.fromBytes(
+            imageBytes,
+            filename: 'image.jpg',
           ),
       });
       await _dio.patch('${ApiConstants.boards}/$id', data: formData);

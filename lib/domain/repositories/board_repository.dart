@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter_assignment/domain/entities/board/board.dart';
 import 'package:flutter_assignment/domain/entities/board/board_list_pagination.dart';
@@ -10,7 +10,7 @@ abstract class BoardRepository {
     required String title,
     required String content,
     required String category,
-    File? image,
+    Uint8List? imageBytes,
   });
 
   // 글조회 (디테일 페이지조회)
@@ -28,7 +28,7 @@ abstract class BoardRepository {
     required String title,
     required String content,
     required String category,
-    File? image,
+    Uint8List? imageBytes,
   });
 
   // 글삭제
